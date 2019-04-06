@@ -12,6 +12,9 @@ contract Renting {
 
     Car[] public cars;
 
+    event CreatedCarEvent();
+    event CreatedRentEvent();
+
     function getNumCars() public view returns (uint) {
         return cars.length;
     }
@@ -24,6 +27,8 @@ contract Renting {
 
     function addCar(string memory _description, uint _price) public returns (bool) {
         Car memory car;
+        emit CreatedCarEvent();
+
         car.owner = msg.sender;
         car.description = _description;
         car.price = _price;
@@ -41,6 +46,7 @@ contract Renting {
             c.available = false;
             c.rentedBy = msg.sender;
             c.rentingTime = now;
+            emit CreatedRentEvent();
             return true;
         }
 

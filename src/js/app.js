@@ -117,11 +117,11 @@ App = {
 			
             App.contracts.Renting.deployed().then(function (instance) {
                 carInstance = instance;
-                return carInstance.addCar(value, {
-                    from: account
+                return carInstance.addCar(value, 1, {
+                    from: account, gas: 1000000
                 });
             }).then(function (result) {
-                var event = carInstance.CreatedProposalEvent();
+                var event = carInstance.CreatedCarEvent();
                 App.handleEvent(event);
                 $('.input-value').val(''); // clean input
             }).catch(function (err) {
