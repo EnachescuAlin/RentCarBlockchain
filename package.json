@@ -2,8 +2,9 @@
   "name": "rentcarblockchain",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "truffle-config.js",
   "scripts": {
+    "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/EnachescuAlin/RentCarBlockchain/issues"
   },
-  "homepage": "https://github.com/EnachescuAlin/RentCarBlockchain#readme"
+  "homepage": "https://github.com/EnachescuAlin/RentCarBlockchain#readme",
+  "devDependencies": {
+    "lite-server": "^2.3.0"
+  },
+  "dependencies": {
+    "truffle": "^4.0.6"
+  }
 }
