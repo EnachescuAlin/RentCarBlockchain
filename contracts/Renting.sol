@@ -20,9 +20,9 @@ contract Renting {
     }
 
     // returns owner address, car description, price, available
-    function getCar(uint pos) public view returns (address, string memory, uint, bool, address) {
+    function getCar(uint pos) public view returns (uint, address, string memory, uint, bool, address) {
         Car storage c = cars[pos];
-        return (c.owner, c.description, c.price, c.available, c.rentedBy);
+        return (pos, c.owner, c.description, c.price, c.available, c.rentedBy);
     }
 
     function addCar(string memory _description, uint _price) public returns (bool) {

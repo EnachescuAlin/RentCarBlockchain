@@ -2,8 +2,6 @@ App = {
     web3Provider: null,
     contracts: {},
 
-    account: "",
-
     init: function () {
         return App.initWeb3();
     },
@@ -73,14 +71,6 @@ App = {
 
     getCars: function () {
         var carsInstance;
-
-        // web3.eth.getAccounts(function (error, accounts) {
-        //     if (error) {
-        //         console.log(error);
-        // 	}
-
-        // var account = accounts[1];
-
         App.contracts.Renting.deployed().then(function (instance) {
             carsInstance = instance;
 
@@ -91,29 +81,25 @@ App = {
 				
                 for (var i = 0; i < numCars; i++) {
                     carsInstance.getCar.call(i).then(function (data) {
-                    // carsInstance.getCar(i, {
-                    //     from: account,
-                    //     gas: 1000000
-                    // }).then(function (data) {
-                        var idx = i;
+                        var idx = data[0];
 
-                        proposalCar.find('.panel-title').text(data[1]);
-                        proposalCar.find('.price').text(data[2]);
-                        proposalCar.find('.available').text(data[3]);
+                        proposalCar.find('.panel-title').text(data[2]);
+                        proposalCar.find('.price').text(data[3]);
+                        proposalCar.find('.available').text(data[4]);
                         proposalCar.find('.btn-rent').attr('data-car', idx);
                         proposalCar.find('.btn-free').attr('data-car', idx);
 
-                        if (data[3] == true) {
+                        if (data[4] == true) {
                             proposalCar.find('.btn-rent').attr('disabled', false);
                             proposalCar.find('.btn-free').attr('disabled', true);
                         } else {
-                            if (data[4] == account) {
+                            if (data[5] == $('#wrapperAccounts').val()) {
                                 proposalCar.find('.btn-free').attr('disabled', false);
                                 proposalCar.find('.btn-rent').attr('disabled', true);
+                            } else {
+                                proposalCar.find('.btn-rent').attr('disabled', true);
+                                proposalCar.find('.btn-free').attr('disabled', true);
                             }
-
-                            proposalCar.find('.btn-rent').attr('disabled', true);
-                            proposalCar.find('.btn-free').attr('disabled', true);
                         }
 
                         wrapperCars.append(proposalCar.html());
@@ -125,9 +111,8 @@ App = {
                 console.log(err.message);
             });
         }).catch(function (err) {
-			console.log(err.message);
-		});
-        // });
+            console.log(err.message);
+        });
         $('button').button('reset');
     },
 
@@ -135,24 +120,16 @@ App = {
         event.preventDefault();
 
         var carInstance;
-        account = $('#wrapperAccounts').val();
         var value = $('.input-value').val();
         var price = $('.input-price').val();
 
-        console.log(account, value, price)
-
-        // web3.eth.getAccounts(function (error, accounts) {
-        //     if (error) {
-        //         console.log(error);
-        // 	}
-
-        // var account = accounts[1];
+        console.log($('#wrapperAccounts').val(), value, price)
 
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
 
             return carInstance.addCar(value, price, {
-                from: account,
+                from: $('#wrapperAccounts').val(),
                 gas: 1000000
             });
         }).then(function (result) {
@@ -165,7 +142,6 @@ App = {
             console.log(err.message);
             $('button').button('reset');
         });
-        // });
     },
 
     handleRentCar: function (event) {
@@ -174,18 +150,13 @@ App = {
         var carInstance;
         var carInt = parseInt($(event.target).data('car'));
 
-        // web3.eth.getAccounts(function (error, accounts) {
-        // if (error) {
-        //     console.log(error);
-        // }
-
-        // var account = accounts[1];
+        console.log($('#wrapperAccounts').val(), carInt);
 
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
 
             return carInstance.rentCar(carInt, {
-                from: account,
+                from: $('#wrapperAccounts').val(),
                 gas: 1000000
             });
         }).then(function (result) {
@@ -196,7 +167,6 @@ App = {
             console.log(err.message);
             $('button').button('reset');
         });
-        // });
     },
 
     handleFreeCar: function (event) {
@@ -205,18 +175,11 @@ App = {
         var carInstance;
         var carInt = parseInt($(event.target).data('car'));
 
-        // web3.eth.getAccounts(function (error, accounts) {
-        // if (error) {
-        //     console.log(error);
-        // }
-
-        // var account = accounts[1];
-
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
 
             return carInstance.freeCar(carInt, {
-                from: account,
+                from: $('#wrapperAccounts').val(),
                 gas: 1000000
             });
         }).then(function (result) {
@@ -227,7 +190,6 @@ App = {
             console.log(err.message);
             $('button').button('reset');
         });
-        // });
     },
 
     handleEvent: function (event) {
