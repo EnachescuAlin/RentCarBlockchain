@@ -57,10 +57,16 @@ App = {
             App.handleAddCar(e);
         });
 
-        $(document).on('click', '.btn-vote', function (e) {
+        $(document).on('click', '.btn-rent', function (e) {
             var $this = $(this);
             $this.button('loading');
-            App.handleAddVote(e);
+            App.handleRentCar(e);
+        });
+
+        $(document).on('click', '.btn-free', function (e) {
+            var $this = $(this);
+            $this.button('loading');
+            App.handleFreeCar(e);
         });
 
     },
