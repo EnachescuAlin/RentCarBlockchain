@@ -67,6 +67,8 @@ App = {
             App.handleFreeCar(e);
         });
 
+
+
     },
 
     getCars: function () {
@@ -183,7 +185,7 @@ App = {
                 gas: 1000000
             });
         }).then(function (result) {
-            var event = carInstance.CreatedCarEvent();
+            var event = carInstance.CreatedFreeEvent();
             App.handleEvent(event);
 
         }).catch(function (err) {
@@ -210,3 +212,8 @@ $(function () {
         App.init();
     });
 });
+
+function accountChanged() {
+    console.log(`account = ${$('#wrapperAccounts').val()}`);
+    App.getCars();
+}
