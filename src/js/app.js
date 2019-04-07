@@ -48,7 +48,6 @@ App = {
     },
 
     bindEvents: function () {
-
         $(document).on('click', '.btn-value', function (e) {
             var $this = $(this);
             $this.button('loading');
@@ -66,9 +65,6 @@ App = {
             $this.button('loading');
             App.handleFreeCar(e);
         });
-
-
-
     },
 
     getCars: function () {
@@ -85,6 +81,7 @@ App = {
                     carsInstance.getCar.call(i).then(function (data) {
                         var idx = data[0];
 
+                        proposalCar.find('.owner').text(data[1]);
                         proposalCar.find('.panel-title').text(data[2]);
                         proposalCar.find('.price').text(data[3]);
                         proposalCar.find('.available').text(data[4]);
@@ -92,9 +89,15 @@ App = {
                         proposalCar.find('.btn-free').attr('data-car', idx);
 
                         if (data[4] == true) {
-                            proposalCar.find('.btn-rent').attr('disabled', false);
+                            proposalCar.find('.rentedBy').text("not rented");
+                            if (data[1] == $('#wrapperAccounts').val()) {
+                                proposalCar.find('.btn-rent').attr('disabled', true);
+                            } else {
+                                proposalCar.find('.btn-rent').attr('disabled', false);
+                            }
                             proposalCar.find('.btn-free').attr('disabled', true);
                         } else {
+                            proposalCar.find('.rentedBy').text(data[5]);
                             if (data[5] == $('#wrapperAccounts').val()) {
                                 proposalCar.find('.btn-free').attr('disabled', false);
                                 proposalCar.find('.btn-rent').attr('disabled', true);
@@ -152,7 +155,7 @@ App = {
         var carInstance;
         var carInt = parseInt($(event.target).data('car'));
 
-        console.log($('#wrapperAccounts').val(), carInt);
+        console.log("rent car, ", $('#wrapperAccounts').val(), carInt);
 
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
@@ -164,7 +167,6 @@ App = {
         }).then(function (result) {
             var event = carInstance.CreatedRentEvent();
             App.handleEvent(event);
-
         }).catch(function (err) {
             console.log(err.message);
             $('button').button('reset');
@@ -177,6 +179,8 @@ App = {
         var carInstance;
         var carInt = parseInt($(event.target).data('car'));
 
+        console.log("free car, ", $('#wrapperAccounts').val(), carInt);
+
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
 
@@ -187,7 +191,6 @@ App = {
         }).then(function (result) {
             var event = carInstance.CreatedFreeEvent();
             App.handleEvent(event);
-
         }).catch(function (err) {
             console.log(err.message);
             $('button').button('reset');

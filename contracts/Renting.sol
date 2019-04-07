@@ -14,6 +14,7 @@ contract Renting {
 
     event CreatedCarEvent();
     event CreatedRentEvent();
+    event CreatedFreeEvent();
 
     function getNumCars() public view returns (uint) {
         return cars.length;
@@ -41,6 +42,7 @@ contract Renting {
     }
 
     function rentCar(uint pos) public returns (bool) {
+        require(cars[pos].owner != msg.sender);
         if (cars[pos].available == true) {
             Car storage c = cars[pos];
             c.available = false;
@@ -54,14 +56,18 @@ contract Renting {
     }
 
     function freeCar(uint pos) public payable returns (bool) {
-        if (cars[pos].available == false && cars[pos].rentedBy == msg.sender) {
-            cars[pos].available = true;
-            uint time = now - cars[pos].rentingTime;
+        require(cars[pos].rentedBy == msg.sender);
+        if (cars[pos].available == false) {
+            Car storage c = cars[pos];
+            c.available = true;
+            //uint time = now - cars[pos].rentingTime;
 
             //address(cars[pos].owner).transfer(time * cars[pos].price);
-            msg.sender.transfer(time * cars[pos].price);
+            //msg.sender.transfer(time * cars[pos].price);
+            //msg.sender.transfer(cars[pos].price);
 
-            cars[pos].rentingTime = 0;
+            c.rentingTime = 0;
+            emit CreatedFreeEvent();
             return true;
         }
         return false;
