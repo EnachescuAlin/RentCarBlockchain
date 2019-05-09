@@ -65,6 +65,12 @@ App = {
             $this.button('loading');
             App.handleFreeCar(e);
         });
+
+        $(document).on('click', '.btn-remove', function (e) {
+            var $this = $(this);
+            $this.button('loading');
+            App.handleRemoveCar(e);
+        });
     },
 
     getCars: function () {
@@ -87,17 +93,22 @@ App = {
                         proposalCar.find('.available').text(data[4]);
                         proposalCar.find('.btn-rent').attr('data-car', idx);
                         proposalCar.find('.btn-free').attr('data-car', idx);
+                        proposalCar.find('.btn-free').attr('data-owner', data[1]);
+                        proposalCar.find('.btn-remove').attr('data-car', idx);
 
                         if (data[4] == true) {
                             proposalCar.find('.rentedBy').text("not rented");
                             if (data[1] == $('#wrapperAccounts').val()) {
                                 proposalCar.find('.btn-rent').attr('disabled', true);
+                                proposalCar.find('.btn-remove').attr('disabled', false);
                             } else {
                                 proposalCar.find('.btn-rent').attr('disabled', false);
+                                proposalCar.find('.btn-remove').attr('disabled', true);
                             }
                             proposalCar.find('.btn-free').attr('disabled', true);
                         } else {
                             proposalCar.find('.rentedBy').text(data[5]);
+                            proposalCar.find('.btn-remove').attr('disabled', true);
                             if (data[5] == $('#wrapperAccounts').val()) {
                                 proposalCar.find('.btn-free').attr('disabled', false);
                                 proposalCar.find('.btn-rent').attr('disabled', true);
@@ -178,18 +189,51 @@ App = {
 
         var carInstance;
         var carInt = parseInt($(event.target).data('car'));
+        var owner = $(event.target).data('owner');
 
-        console.log("free car, ", $('#wrapperAccounts').val(), carInt);
+        console.log("free car, ", $('#wrapperAccounts').val(), carInt, owner);
 
         App.contracts.Renting.deployed().then(function (instance) {
             carInstance = instance;
 
-            return carInstance.freeCar(carInt, {
+            var ret = carInstance.freeCar(carInt, {
+                from: $('#wrapperAccounts').val(),
+                gas: 1000000,
+                value: web3.toWei(10, "ether")
+            });
+
+            carInstance.withdrawEarnings({
+                from: owner,
+                gas: 1000000
+            });
+
+            return ret;
+        }).then(function (result) {
+            var event = carInstance.CreatedFreeEvent();
+            App.handleEvent(event);
+        }).catch(function (err) {
+            console.log(err.message);
+            $('button').button('reset');
+        });
+    },
+
+    handleRemoveCar: function (event) {
+        event.preventDefault();
+
+        var carInstance;
+        var carInt = parseInt($(event.target).data('car'));
+
+        console.log("remove car, ", $('#wrapperAccounts').val(), carInt);
+
+        App.contracts.Renting.deployed().then(function (instance) {
+            carInstance = instance;
+
+            return carInstance.removeCar(carInt, {
                 from: $('#wrapperAccounts').val(),
                 gas: 1000000
             });
         }).then(function (result) {
-            var event = carInstance.CreatedFreeEvent();
+            var event = carInstance.CreatedRemoveEvent();
             App.handleEvent(event);
         }).catch(function (err) {
             console.log(err.message);

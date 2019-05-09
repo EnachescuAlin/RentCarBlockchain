@@ -2,7 +2,7 @@ pragma solidity >=0.4.21 <0.6.0;
 
 contract Renting {
     struct Car {
-        address owner;
+        address payable owner;
         address rentedBy;
         string description;
         uint price;
@@ -15,6 +15,7 @@ contract Renting {
     event CreatedCarEvent();
     event CreatedRentEvent();
     event CreatedFreeEvent();
+    event CreatedRemoveEvent();
 
     function getNumCars() public view returns (uint) {
         return cars.length;
@@ -60,16 +61,33 @@ contract Renting {
         if (cars[pos].available == false) {
             Car storage c = cars[pos];
             c.available = true;
-            //uint time = now - cars[pos].rentingTime;
 
-            //address(cars[pos].owner).transfer(time * cars[pos].price);
-            //msg.sender.transfer(time * cars[pos].price);
-            //msg.sender.transfer(cars[pos].price);
+            cars[pos].owner.transfer(msg.value);
 
             c.rentingTime = 0;
             emit CreatedFreeEvent();
             return true;
         }
         return false;
+    }
+
+    function withdrawEarnings() public payable {
+        uint amount = 10 * 10 ** 18; // 10 eth
+        msg.sender.transfer(amount);
+    }
+
+    function removeCar(uint pos) public returns (bool) {
+        if (pos >= cars.length) {
+            return false;
+        }
+
+        for (uint i = pos; i < cars.length - 1; i++){
+            cars[i] = cars[i+1];
+        }
+
+        delete cars[cars.length - 1];
+        cars.length--;
+
+        return true;
     }
 }
